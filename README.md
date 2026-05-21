@@ -199,23 +199,46 @@ Fairness Analysis: GET /fairness
 Model Metrics: GET /metrics
 
 # Project Structure
+# Project Structure
+
+```text
 responsible-ml-churn/
 │
 ├── backend/
 │   ├── app/
 │   │   ├── ml/
-│   │   ├── main.py
-│   │   └── ...
+│   │   │   ├── data.py
+│   │   │   ├── preprocessing.py
+│   │   │   ├── train.py
+│   │   │   ├── predict.py
+│   │   │   ├── explain.py
+│   │   │   ├── fairness.py
+│   │   │   └── model_status.py
+│   │   │
+│   │   └── main.py
+│   │
 │   ├── artifacts/
+│   │   └── models/
+│   │
 │   ├── data/
-│   └── requirements.txt
+│   │   └── telco_churn.csv
+│   │
+│   ├── requirements.txt
+│   └── venv/
 │
 ├── frontend/
 │   ├── app/
+│   │   ├── page.tsx
+│   │   └── layout.tsx
+│   │
 │   ├── lib/
-│   └── ...
+│   │   └── api.ts
+│   │
+│   ├── package.json
+│   └── next.config.ts
 │
 └── README.md
+```
 
 # Local Development Setup
 Clone Repository
