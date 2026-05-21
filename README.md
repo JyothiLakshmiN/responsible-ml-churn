@@ -1,117 +1,55 @@
-# Responsible ML Churn
+# Responsible AI Customer Retention Platform
 
-Production-grade Explainable AI platform for trustworthy customer churn prediction using FastAPI, XGBoost, SHAP, and Next.js.
-
-![Next.js](https://img.shields.io/badge/Frontend-Next.js-black)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688)
-![XGBoost](https://img.shields.io/badge/ML-XGBoost-blue)
-![SHAP](https://img.shields.io/badge/Explainability-SHAP-orange)
-![Responsible AI](https://img.shields.io/badge/AI-Responsible%20AI-purple)
+Production-grade Explainable AI platform for customer churn prediction using FastAPI, Next.js, XGBoost, SHAP explainability, and fairness analysis on the IBM Telco Customer Churn dataset.
 
 ---
 
-# Overview
+## Overview
 
-Responsible ML Churn is an end-to-end AI platform that predicts customer churn while providing transparent and explainable model decisions.
+here is the demo link: https://responsible-ml-churn-frontend.onrender.com/
 
-Unlike traditional black-box ML systems, this platform emphasizes:
+This project is a full-stack Responsible AI application designed to predict customer churn for SaaS and telecom businesses while ensuring transparency, explainability, and fairness in machine learning predictions.
 
-- Explainable AI (XAI)
-- Fairness analysis
-- Trustworthy predictions
-- Production-ready APIs
-- Interactive visualization dashboards
+The platform combines:
 
-The application combines modern AI engineering practices with full-stack product development.
+- Machine Learning with XGBoost
+- Explainable AI using SHAP
+- Fairness Analysis across demographic groups
+- FastAPI backend APIs
+- Next.js production-grade frontend
+- Real-world IBM Telco Customer Churn dataset
+
+The application allows users to:
+- Predict customer churn risk
+- Understand why predictions were made
+- Analyze fairness across protected groups
+- Visualize SHAP feature importance
+- Monitor model health and metrics
 
 ---
 
-# Key Features
+# Live Features
 
 ## AI-Powered Churn Prediction
+Predicts whether a customer is likely to churn based on behavioral and subscription features.
 
-Predicts whether a customer is likely to churn using an XGBoost machine learning model.
-
-## Explainable AI with SHAP
-
-Provides feature-level explanations showing exactly why the model made a prediction.
+## Explainable AI (XAI)
+Uses SHAP (SHapley Additive Explanations) to explain:
+- Which factors increased churn risk
+- Which factors reduced churn risk
+- Relative feature importance
 
 ## Fairness Analysis
-
-Evaluates model behavior across demographic groups to detect potential bias.
-
-## Real-Time Inference APIs
-
-FastAPI backend serving live predictions and explainability results.
-
-## Interactive Dashboard
-
-Next.js frontend with:
-- Customer risk input forms
-- Prediction visualizations
-- SHAP impact analysis
-- Fairness metrics
-- Risk indicators
-
-## Production-Oriented Architecture
-
-Designed using scalable AI application patterns:
-- Modular ML pipeline
-- Artifact persistence
-- API-driven architecture
-- Frontend/backend separation
-
----
-
-# Demo
-
-## Customer Risk Prediction
-
-Users can input:
-- Age
-- Tenure
-- Monthly charges
-- Product usage
-- Support interactions
-- Contract type
-- Payment method
-
-The system returns:
-- Churn probability
-- Risk level
-- Prediction confidence
-- Feature importance analysis
-
----
-
-# Explainable AI
-
-The platform uses SHAP (SHapley Additive exPlanations) to explain predictions.
-
-Example:
-
-| Feature | Impact |
-|---|---|
-| Support Calls | Increased churn risk |
-| Short Tenure | Increased churn risk |
-| Month-to-Month Contract | Increased churn risk |
-| Age | Reduced churn risk |
-
-This enables transparent and interpretable AI decisions.
-
----
-
-# Fairness & Responsible AI
-
-The platform includes fairness analysis across customer groups.
+Evaluates model fairness across demographic groups such as gender.
 
 Metrics include:
 - AUC comparison
 - Accuracy comparison
-- Churn rate distribution
-- Fairness threshold checks
+- Churn rate comparison
+- Fairness status evaluation
 
-This aligns with modern Responsible AI principles used in enterprise AI systems.
+## Production-Grade Full Stack Architecture
+Frontend and backend are independently deployable and communicate through REST APIs.
 
 ---
 
@@ -119,6 +57,7 @@ This aligns with modern Responsible AI principles used in enterprise AI systems.
 
 ## Frontend
 - Next.js 15
+- React
 - TypeScript
 - Tailwind CSS
 - Recharts
@@ -126,6 +65,7 @@ This aligns with modern Responsible AI principles used in enterprise AI systems.
 
 ## Backend
 - FastAPI
+- Python
 - Pydantic
 - Uvicorn
 
@@ -136,15 +76,12 @@ This aligns with modern Responsible AI principles used in enterprise AI systems.
 - Pandas
 - NumPy
 
-## AI Engineering
-- Explainable AI (XAI)
-- Responsible AI
-- Fairness Evaluation
-- ML Artifact Management
+## Deployment
+- Render (Frontend + Backend)
 
 ---
 
-# Architecture
+# System Architecture
 
 ```text
 Frontend (Next.js)
@@ -160,76 +97,196 @@ SHAP Explainability Engine
 Fairness Analysis Module
 ```
 
+# Dataset
+This project uses the real-world IBM Telco Customer Churn dataset from Kaggle.
+
+Dataset Link:
+
+https://www.kaggle.com/datasets/blastchar/telco-customer-churn
+
+Dataset contains:
+
+Customer demographics
+Subscription details
+Billing information
+Service usage
+Churn labels
+
+The dataset is used to train and evaluate the XGBoost churn prediction model.
+
+# Machine Learning Workflow
+IBM Telco Dataset
+        ↓
+Data Cleaning & Preprocessing
+        ↓
+Feature Engineering
+        ↓
+One-Hot Encoding
+        ↓
+Train/Test Split
+        ↓
+Feature Scaling
+        ↓
+XGBoost Training
+        ↓
+Prediction API
+        ↓
+SHAP Explainability
+        ↓
+Fairness Evaluation
+
+# Features Used
+
+Numerical Features
+    senior_citizen
+    tenure_months
+    monthly_charge
+    total_charges
+
+Categorical Features
+    gender
+    contract_type
+    payment_method
+    internet_service
+    tech_support
+    online_security
+
+# Explainable AI with SHAP
+The project integrates SHAP to provide transparent explanations for every prediction.
+
+Example insights:
+
+Month-to-month contracts increase churn risk
+Fiber optic users may show higher churn probability
+Long customer tenure reduces churn risk
+Lack of tech support increases churn risk
+
+SHAP values are visualized directly in the frontend dashboard.
+
+# Fairness Analysis
+The platform evaluates fairness across demographic groups.
+
+Current fairness checks:
+
+Gender-based performance comparison
+AUC difference analysis
+Accuracy difference analysis
+
+This ensures the model behaves consistently across groups.
+
+# API Endpoints
+Health Check: GET /health
+Dataset Preview: GET /dataset-preview
+Train Model: POST /train
+Predict Churn: POST /predict
+
+Example Request:
+
+{
+  "senior_citizen": 0,
+  "tenure_months": 12,
+  "monthly_charge": 85,
+  "total_charges": 1200,
+  "gender": "Female",
+  "contract_type": "Month-to-month",
+  "payment_method": "Electronic check",
+  "internet_service": "Fiber optic",
+  "tech_support": "No",
+  "online_security": "No"
+}
+Explain Prediction: POST /explain
+Fairness Analysis: GET /fairness
+Model Metrics: GET /metrics
+
 # Project Structure
 responsible-ml-churn/
-
+│
 ├── backend/
 │   ├── app/
 │   │   ├── ml/
-│   │   │   ├── data.py
-│   │   │   ├── preprocessing.py
-│   │   │   ├── train.py
-│   │   │   ├── predict.py
-│   │   │   ├── explain.py
-│   │   │   ├── fairness.py
-│   │   │   └── model_status.py
-│   │   └── main.py
-│   │
+│   │   ├── main.py
+│   │   └── ...
 │   ├── artifacts/
-│   │   └── models/
-│   │
+│   ├── data/
 │   └── requirements.txt
 │
 ├── frontend/
 │   ├── app/
 │   ├── lib/
-│   └── components/
+│   └── ...
 │
 └── README.md
 
-# API Endpoints
+# Local Development Setup
+Clone Repository
+git clone https://github.com/JyothiLakshmiN/responsible-ml-churn.git
 
-| Endpoint        | Method | Description                |
-| --------------- | ------ | -------------------------- |
-| `/health`       | GET    | API health check           |
-| `/train`        | POST   | Train churn model          |
-| `/predict`      | POST   | Predict customer churn     |
-| `/explain`      | POST   | Generate SHAP explanations |
-| `/fairness`     | GET    | Fairness analysis          |
-| `/metrics`      | GET    | Model performance metrics  |
-| `/model-status` | GET    | Model artifact status      |
-
-# Model Performance
-
-Example Metrics:
-
-AUC-ROC: 0.66+
-Accuracy: 61%+
-Explainability: Enabled
-Fairness Monitoring: Enabled
-
-
-# Running Locally
-
-git clone https://github.com/YOUR_USERNAME/responsible-ml-churn.git
-cd responsible-ml-churn
-
-# Backend Setup
-
+Backend Setup:
 cd backend
 
 python3 -m venv venv
 
 source venv/bin/activate
-
 pip install -r requirements.txt
 
-python3 -m uvicorn app.main:app --reload
+run backend: python3 -m uvicorn app.main:app --reload
+
+Backend runs on: http://127.0.0.1:8000
+Swagger Docs: http://127.0.0.1:8000/docs
 
 # Frontend Setup
-
 cd frontend
 
 npm install
 
 npm run dev
+
+Frontend runs on: http://localhost:3000
+
+# Model Training
+Train the model using: POST /train (go to Swagger Docs and see this call)
+
+Artifacts generated:
+xgboost_churn_model.joblib
+scaler.joblib
+feature_names.joblib
+metrics.joblib
+
+# Deployment
+Frontend Deployment
+    Render Static Site / Web Service
+Backend Deployment
+    Render Web Service
+
+# Environment Variable:
+NEXT_PUBLIC_API_URL=https://your-backend-url.onrender.com
+
+# Production Features
+REST API architecture
+Typed request validation with Pydantic
+Scalable frontend/backend separation
+Real-world dataset integration
+Explainable AI
+Fairness evaluation
+Responsive UI dashboard
+Deployment-ready architecture
+
+# Future Improvements
+Authentication & RBAC
+MLflow experiment tracking
+CI/CD pipelines
+Docker containerization
+Drift monitoring
+Real-time inference logging
+Advanced fairness metrics
+LLM-generated customer retention recommendations
+
+Author
+
+Jyothi Lakshmi N
+
+GitHub:
+https://github.com/JyothiLakshmiN
+
+LinkedIn:
+https://www.linkedin.com/in/jyothilakshmin/
