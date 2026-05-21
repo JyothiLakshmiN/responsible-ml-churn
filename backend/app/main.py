@@ -1,36 +1,41 @@
+import joblib
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.ml.data import generate_customer_data
-from app.ml.train import train_xgboost_model
 from pydantic import BaseModel, Field
+from typing import Literal
+
+from app.ml.data import load_customer_churn_data
+from app.ml.train import train_xgboost_model
 from app.ml.predict import predict_churn
 from app.ml.explain import explain_prediction
 from app.ml.fairness import analyze_fairness
 from app.ml.model_status import get_model_status
-from typing import Literal
 
-import joblib
 
 class CustomerInput(BaseModel):
-    age: float = Field(..., ge=18, le=90)
-    tenure_months: float = Field(..., ge=1, le=120)
-    monthly_charge: float = Field(..., ge=20, le=150)
-    num_products: int = Field(..., ge=1, le=5)
-    support_calls: int = Field(..., ge=0, le=20)
+    senior_citizen: int = Field(..., ge=0, le=1)
+    tenure_months: float = Field(..., ge=0, le=100)
+    monthly_charge: float = Field(..., ge=0)
+    total_charges: float = Field(..., ge=0)
 
     gender: Literal["Male", "Female"]
-    contract_type: Literal["Month-to-Month", "One Year", "Two Year"]
+    contract_type: Literal["Month-to-month", "One year", "Two year"]
     payment_method: Literal[
-        "Credit Card",
-        "Bank Transfer",
-        "Electronic Check",
-        "Mailed Check"
+        "Electronic check",
+        "Mailed check",
+        "Bank transfer (automatic)",
+        "Credit card (automatic)"
     ]
+    internet_service: Literal["DSL", "Fiber optic", "No"]
+    tech_support: Literal["Yes", "No", "No internet service"]
+    online_security: Literal["Yes", "No", "No internet service"]
+
 
 app = FastAPI(
     title="Responsible ML Churn API",
-    description="Production-grade churn prediction with explainability and fairness analysis",
-    version="1.0.0",
+    description="Explainable customer churn prediction using IBM Telco Customer Churn data",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -45,26 +50,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def root():
     return {
-        "message": "Responsible ML Churn API Running"
+        "message": "Responsible ML Churn API Running",
+        "dataset": "IBM Telco Customer Churn",
+        "version": "2.0.0"
     }
+
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "service": "responsible-ml-churn"}
+    return {
+        "status": "ok",
+        "service": "responsible-ml-churn",
+        "dataset": "IBM Telco Customer Churn"
+    }
 
-@app.post("/generate-data")
-def generate_data():
 
-    df = generate_customer_data()
+@app.get("/dataset-preview")
+def dataset_preview():
+    df = load_customer_churn_data()
 
     return {
+        "dataset": "IBM Telco Customer Churn",
         "rows": len(df),
         "columns": list(df.columns),
         "sample_data": df.head(5).to_dict(orient="records")
     }
+
 
 @app.post("/train")
 def train_model():
@@ -86,6 +101,7 @@ def predict(customer: CustomerInput):
         "result": result
     }
 
+
 @app.get("/metrics")
 def get_metrics():
     metrics = joblib.load("artifacts/models/metrics.joblib")
@@ -94,6 +110,7 @@ def get_metrics():
         "message": "Model metrics retrieved successfully",
         "metrics": metrics
     }
+
 
 @app.post("/explain")
 def explain(customer: CustomerInput):
@@ -105,6 +122,7 @@ def explain(customer: CustomerInput):
         "explanation": result
     }
 
+
 @app.get("/fairness")
 def fairness_report():
     result = analyze_fairness()
@@ -113,6 +131,7 @@ def fairness_report():
         "message": "Fairness analysis completed successfully",
         "fairness_report": result
     }
+
 
 @app.get("/model-status")
 def model_status():

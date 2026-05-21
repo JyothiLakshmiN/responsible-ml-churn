@@ -48,31 +48,33 @@ export default function Home() {
   const [apiStatus, setApiStatus] = useState("Checking...");
 
   const [customer, setCustomer] = useState({
-    age: 35,
-    tenure_months: 8,
-    monthly_charge: 95,
-    num_products: 1,
-    support_calls: 5,
+    senior_citizen: 0,
+    tenure_months: 12,
+    monthly_charge: 85,
+    total_charges: 1200,
     gender: "Female",
-    contract_type: "Month-to-Month",
-    payment_method: "Electronic Check",
+    contract_type: "Month-to-month",
+    payment_method: "Electronic check",
+    internet_service: "Fiber optic",
+    tech_support: "No",
+    online_security: "No",
   });
 
   useEffect(() => {
-  const checkHealth = async () => {
-    try {
-      const response = await api.get("/health");
+    const checkHealth = async () => {
+      try {
+        const response = await api.get("/health");
 
-      if (response.data.status === "ok") {
-        setApiStatus("Online");
+        if (response.data.status === "ok") {
+          setApiStatus("Online");
+        }
+      } catch {
+        setApiStatus("Offline");
       }
-    } catch {
-      setApiStatus("Offline");
-    }
-  };
+    };
 
-  checkHealth();
-}, []);
+    checkHealth();
+  }, []);
 
   const updateCustomer = (field: string, value: string | number) => {
     setCustomer((prev) => ({
@@ -84,28 +86,35 @@ export default function Home() {
   const predict = async () => {
     setLoading(true);
 
-    const predictionResponse = await api.post("/predict", customer);
-    const explanationResponse = await api.post("/explain", customer);
-    const fairnessResponse = await api.get("/fairness");
+    try {
+      const predictionResponse = await api.post("/predict", customer);
+      const explanationResponse = await api.post("/explain", customer);
+      const fairnessResponse = await api.get("/fairness");
 
-    setResult(predictionResponse.data.result);
-    setExplanations(explanationResponse.data.explanation.top_factors);
-    setFairnessGroups(fairnessResponse.data.fairness_report.group_metrics);
-    setFairnessSummary(fairnessResponse.data.fairness_report.fairness_summary);
-
-    setLoading(false);
+      setResult(predictionResponse.data.result);
+      setExplanations(explanationResponse.data.explanation.top_factors);
+      setFairnessGroups(fairnessResponse.data.fairness_report.group_metrics);
+      setFairnessSummary(
+        fairnessResponse.data.fairness_report.fairness_summary
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <main className="min-h-screen bg-slate-950 text-white p-10">
       <div className="max-w-6xl mx-auto space-y-8">
         <div>
-          <h1 className="text-5xl font-bold">Responsible ML Churn</h1>
+          <h1 className="text-5xl font-bold">
+            SaaS Customer Retention Intelligence
+          </h1>
           <p className="text-slate-400 mt-3 text-lg">
             Trustworthy churn prediction with explainable AI and fairness
-            analysis.
+            analysis using real-world customer churn data.
           </p>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
             <p className="text-slate-400 text-sm">Model</p>
@@ -127,95 +136,191 @@ export default function Home() {
             <p className="text-xl font-bold mt-2">{apiStatus}</p>
           </div>
         </div>
+
         <section className="rounded-2xl bg-slate-900 p-6 border border-slate-800">
-          <h2 className="text-2xl font-semibold mb-5">
-            Customer Risk Input
+          <h2 className="text-2xl font-semibold mb-2">
+            Customer Retention Risk Input
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              type="number"
-              value={customer.age}
-              onChange={(e) => updateCustomer("age", Number(e.target.value))}
-              placeholder="Age"
-            />
+          <p className="text-slate-400 mb-5">
+            Enter a customer profile to estimate churn risk and understand the
+            factors influencing the prediction.
+          </p>
 
-            <input
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              type="number"
-              value={customer.tenure_months}
-              onChange={(e) =>
-                updateCustomer("tenure_months", Number(e.target.value))
-              }
-              placeholder="Tenure Months"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            <input
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              type="number"
-              value={customer.monthly_charge}
-              onChange={(e) =>
-                updateCustomer("monthly_charge", Number(e.target.value))
-              }
-              placeholder="Monthly Charge"
-            />
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Senior Citizen
+              </label>
 
-            <input
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              type="number"
-              value={customer.num_products}
-              onChange={(e) =>
-                updateCustomer("num_products", Number(e.target.value))
-              }
-              placeholder="Number of Products"
-            />
+              <select
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                value={customer.senior_citizen}
+                onChange={(e) =>
+                  updateCustomer("senior_citizen", Number(e.target.value))
+                }
+              >
+                <option value={0}>No</option>
+                <option value={1}>Yes</option>
+              </select>
+            </div>
 
-            <input
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              type="number"
-              value={customer.support_calls}
-              onChange={(e) =>
-                updateCustomer("support_calls", Number(e.target.value))
-              }
-              placeholder="Support Calls"
-            />
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Tenure (Months)
+              </label>
 
-            <select
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              value={customer.gender}
-              onChange={(e) => updateCustomer("gender", e.target.value)}
-            >
-              <option>Female</option>
-              <option>Male</option>
-            </select>
+              <input
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                type="number"
+                value={customer.tenure_months}
+                onChange={(e) =>
+                  updateCustomer("tenure_months", Number(e.target.value))
+                }
+                placeholder="Enter customer tenure"
+              />
+            </div>
 
-            <select
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              value={customer.contract_type}
-              onChange={(e) =>
-                updateCustomer("contract_type", e.target.value)
-              }
-            >
-              <option>Month-to-Month</option>
-              <option>One Year</option>
-              <option>Two Year</option>
-            </select>
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Monthly Charge ($)
+              </label>
 
-            <select
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-              value={customer.payment_method}
-              onChange={(e) =>
-                updateCustomer("payment_method", e.target.value)
-              }
-            >
-              <option>Electronic Check</option>
-              <option>Credit Card</option>
-              <option>Bank Transfer</option>
-              <option>Mailed Check</option>
-            </select>
+              <input
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                type="number"
+                value={customer.monthly_charge}
+                onChange={(e) =>
+                  updateCustomer("monthly_charge", Number(e.target.value))
+                }
+                placeholder="Enter monthly bill amount"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Total Charges ($)
+              </label>
+
+              <input
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                type="number"
+                value={customer.total_charges}
+                onChange={(e) =>
+                  updateCustomer("total_charges", Number(e.target.value))
+                }
+                placeholder="Enter total customer charges"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Gender
+              </label>
+
+              <select
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                value={customer.gender}
+                onChange={(e) => updateCustomer("gender", e.target.value)}
+              >
+                <option>Female</option>
+                <option>Male</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Contract Type
+              </label>
+
+              <select
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                value={customer.contract_type}
+                onChange={(e) =>
+                  updateCustomer("contract_type", e.target.value)
+                }
+              >
+                <option>Month-to-month</option>
+                <option>One year</option>
+                <option>Two year</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Payment Method
+              </label>
+
+              <select
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                value={customer.payment_method}
+                onChange={(e) =>
+                  updateCustomer("payment_method", e.target.value)
+                }
+              >
+                <option>Electronic check</option>
+                <option>Mailed check</option>
+                <option>Bank transfer (automatic)</option>
+                <option>Credit card (automatic)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Internet Service
+              </label>
+
+              <select
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                value={customer.internet_service}
+                onChange={(e) =>
+                  updateCustomer("internet_service", e.target.value)
+                }
+              >
+                <option>Fiber optic</option>
+                <option>DSL</option>
+                <option>No</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Tech Support
+              </label>
+
+              <select
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                value={customer.tech_support}
+                onChange={(e) =>
+                  updateCustomer("tech_support", e.target.value)
+                }
+              >
+                <option>No</option>
+                <option>Yes</option>
+                <option>No internet service</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">
+                Online Security
+              </label>
+
+              <select
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3"
+                value={customer.online_security}
+                onChange={(e) =>
+                  updateCustomer("online_security", e.target.value)
+                }
+              >
+                <option>No</option>
+                <option>Yes</option>
+                <option>No internet service</option>
+              </select>
+            </div>
+
           </div>
-
           <button
             onClick={predict}
             disabled={loading}
@@ -238,9 +343,7 @@ export default function Home() {
               </div>
 
               <div className="bg-slate-950 p-5 rounded-xl">
-                <p className="text-slate-400 text-sm">
-                  Probability
-                </p>
+                <p className="text-slate-400 text-sm">Probability</p>
 
                 <p className="text-3xl font-bold mt-2">
                   {(result.churn_probability * 100).toFixed(2)}%
@@ -249,10 +352,10 @@ export default function Home() {
                 <div className="w-full bg-slate-800 rounded-full h-3 mt-4">
                   <div
                     className={`h-3 rounded-full ${result.churn_probability > 0.7
-                      ? "bg-red-500"
-                      : result.churn_probability > 0.4
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
+                        ? "bg-red-500"
+                        : result.churn_probability > 0.4
+                          ? "bg-yellow-500"
+                          : "bg-green-500"
                       }`}
                     style={{
                       width: `${result.churn_probability * 100}%`,
@@ -292,8 +395,8 @@ export default function Home() {
                     <div className="text-right">
                       <p
                         className={`font-bold text-lg ${factor.shap_value > 0
-                          ? "text-red-400"
-                          : "text-green-400"
+                            ? "text-red-400"
+                            : "text-green-400"
                           }`}
                       >
                         {factor.shap_value > 0 ? "+" : ""}
@@ -308,6 +411,33 @@ export default function Home() {
                 </div>
               ))}
             </div>
+
+           <div className="mt-10 h-[400px] bg-slate-950 rounded-xl p-5">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart data={explanations}>
+      <XAxis
+        dataKey="feature"
+        tick={{ fill: "#94a3b8", fontSize: 12 }}
+        interval={0}
+        angle={-25}
+        textAnchor="end"
+        height={90}
+      />
+      <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} />
+      <Tooltip
+        contentStyle={{
+          backgroundColor: "#020617",
+          border: "1px solid #334155",
+          borderRadius: "12px",
+          color: "#ffffff",
+        }}
+        labelStyle={{ color: "#ffffff" }}
+        itemStyle={{ color: "#ffffff" }}
+      />
+      <Bar dataKey="shap_value" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
           </section>
         )}
 
@@ -360,16 +490,6 @@ export default function Home() {
                   </div>
                 </div>
               ))}
-            </div>
-            <div className="mt-10 h-[400px] bg-slate-950 rounded-xl p-5">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={explanations}>
-                  <XAxis dataKey="feature" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="shap_value" />
-                </BarChart>
-              </ResponsiveContainer>
             </div>
           </section>
         )}

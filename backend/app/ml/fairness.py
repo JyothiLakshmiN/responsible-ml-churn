@@ -1,7 +1,7 @@
 import joblib
 from sklearn.metrics import roc_auc_score, accuracy_score
 
-from app.ml.data import generate_customer_data
+from app.ml.data import load_customer_churn_data
 from app.ml.preprocessing import preprocess_data
 
 MODEL_PATH = "artifacts/models/xgboost_churn_model.joblib"
@@ -10,14 +10,17 @@ MODEL_PATH = "artifacts/models/xgboost_churn_model.joblib"
 def analyze_fairness():
     model = joblib.load(MODEL_PATH)
 
-    df = generate_customer_data(n_samples=10000)
+    df = load_customer_churn_data()
 
     _, X_test, _, y_test, X_test_original, _ = preprocess_data(df)
 
     y_proba = model.predict_proba(X_test)[:, 1]
     y_pred = (y_proba >= 0.5).astype(int)
 
-    gender_cols = [col for col in X_test_original.columns if col.startswith("gender_")]
+    gender_cols = [
+        col for col in X_test_original.columns
+        if col.startswith("gender_")
+    ]
 
     results = []
 
@@ -41,9 +44,19 @@ def analyze_fairness():
     accuracy_values = [item["accuracy"] for item in results]
 
     fairness_summary = {
-        "auc_difference": round(float(max(auc_values) - min(auc_values)), 4),
-        "accuracy_difference": round(float(max(accuracy_values) - min(accuracy_values)), 4),
-        "fairness_status": "Fair" if max(auc_values) - min(auc_values) < 0.02 else "Review Needed"
+        "auc_difference": round(
+            float(max(auc_values) - min(auc_values)),
+            4
+        ),
+        "accuracy_difference": round(
+            float(max(accuracy_values) - min(accuracy_values)),
+            4
+        ),
+        "fairness_status": (
+            "Fair"
+            if max(auc_values) - min(auc_values) < 0.02
+            else "Review Needed"
+        )
     }
 
     return {

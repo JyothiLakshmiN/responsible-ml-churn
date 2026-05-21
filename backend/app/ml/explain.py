@@ -6,6 +6,31 @@ MODEL_PATH = "artifacts/models/xgboost_churn_model.joblib"
 SCALER_PATH = "artifacts/models/scaler.joblib"
 FEATURES_PATH = "artifacts/models/feature_names.joblib"
 
+NUMERICAL_COLUMNS = [
+    "senior_citizen",
+    "tenure_months",
+    "monthly_charge",
+    "total_charges",
+]
+
+CATEGORICAL_COLUMNS = [
+    "gender",
+    "Partner",
+    "Dependents",
+    "PhoneService",
+    "MultipleLines",
+    "internet_service",
+    "online_security",
+    "OnlineBackup",
+    "DeviceProtection",
+    "tech_support",
+    "StreamingTV",
+    "StreamingMovies",
+    "contract_type",
+    "PaperlessBilling",
+    "payment_method",
+]
+
 
 def explain_prediction(customer_data: dict):
     model = joblib.load(MODEL_PATH)
@@ -14,16 +39,37 @@ def explain_prediction(customer_data: dict):
 
     df = pd.DataFrame([customer_data])
 
+    available_categorical_columns = [
+        col for col in CATEGORICAL_COLUMNS
+        if col in df.columns
+    ]
+
     df_encoded = pd.get_dummies(
         df,
-        columns=["gender", "contract_type", "payment_method"]
+        columns=available_categorical_columns,
+        drop_first=False,
+        dtype=int
     )
 
-    df_encoded = df_encoded.reindex(columns=feature_names, fill_value=0)
-    df_scaled = scaler.transform(df_encoded)
+    df_encoded = df_encoded.reindex(
+        columns=feature_names,
+        fill_value=0
+    )
+
+    df_encoded = df_encoded.astype(float)
+
+    available_numerical_columns = [
+        col for col in NUMERICAL_COLUMNS
+        if col in df_encoded.columns
+    ]
+
+    df_encoded.loc[:, available_numerical_columns] = scaler.transform(
+        df_encoded[available_numerical_columns]
+    )
 
     explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(df_scaled)
+
+    shap_values = explainer.shap_values(df_encoded)
 
     explanation = []
 
@@ -34,9 +80,13 @@ def explain_prediction(customer_data: dict):
     ):
         explanation.append({
             "feature": feature,
-            "input_value": float(value),
+            "input_value": round(float(value), 4),
             "shap_value": round(float(shap_value), 4),
-            "impact": "increases churn risk" if shap_value > 0 else "decreases churn risk"
+            "impact": (
+                "increases churn risk"
+                if shap_value > 0
+                else "decreases churn risk"
+            )
         })
 
     explanation = sorted(
